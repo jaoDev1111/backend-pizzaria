@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ContractType {
+  PRINTER_RENTAL
+  CAMERA_MONITORING
+  VEHICLE_TRACKING
+}
+
+enum EquipmentType {
+  PRINTER
+  CAMERA
+  TRACKER
+}
+
+model User {
+  id    String  @id @default(uuid())
+  email String  @unique
+  name  String?
+  password String
+}
+
+
+
+model Client {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?  @unique
+  phone     String?
+
+  contracts Contract[]
+  equipments Equipment[]
+
+  createdAt DateTime @default(now())
+}
+
+model Contract {
+  id          String   @id @default(uuid())
+  description String?
+  type        ContractType
+  isActive    Boolean  @default(true)
+
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id])
+
+  equipments  Equipment[]
+
+  startDate   DateTime
+  endDate     DateTime?
+
+  createdAt   DateTime @default(now())
+}
+
+model Equipment {
+  id          String   @id @default(uuid())
+  name        String
+  type        EquipmentType
+
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id])
+
+  contractId  String?
+  contract    Contract? @relation(fields: [contractId], references: [id])
+
+  printer     Printer?
+  camera      Camera?
+  tracker     Tracker?
+
+  createdAt   DateTime @default(now())
+}
+
+model Printer {
+  id            String @id @default(uuid())
+
+  equipmentId   String @unique
+  equipment     Equipment @relation(fields: [equipmentId], references: [id])
+
+  ipAddress     String?
+  brand         String?
+  model         String?
+  serialNumber  String?
+}
+
+model Camera {
+  id            String @id @default(uuid())
+
+  equipmentId   String @unique
+  equipment     Equipment @relation(fields: [equipmentId], references: [id])
+
+  ipAddress     String?
+  location      String?
+  resolution    String?
+}
+
+model Tracker {
+  id            String @id @default(uuid())
+
+  equipmentId   String @unique
+  equipment     Equipment @relation(fields: [equipmentId], references: [id])
+
+  imei          String?
+  vehiclePlate  String?
+}
+
+
+
+model Product {
+  id String @id @default(uuid())
+  name String
+}
+
+
